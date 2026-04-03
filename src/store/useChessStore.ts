@@ -33,6 +33,10 @@ interface ChessState {
   currentTrainingIndex: number;
   minUserIndex: number;
   isThinking: boolean;
+  
+  boardSize: number;
+  boardTheme: "dark" | "wood" | "blue" | "green";
+  pieceTheme: "standard" | "alpha" | "california";
 
   makeMove: (move: { from: string; to: string; promotion?: string }) => { played: boolean; correct: boolean | null };
   createGroup: (title: string) => void;
@@ -56,6 +60,7 @@ interface ChessState {
   stepBackward: () => void;
   resetTraining: () => void;
   getNextChapterId: () => string | null;
+  setBoardSettings: (settings: Partial<{ boardSize: number; boardTheme: any; pieceTheme: any }>) => void;
 }
 
 // Derive which color the study is for from a PGN string
@@ -108,6 +113,11 @@ export const useChessStore = create<ChessState>()(
       currentTrainingIndex: 0,
       minUserIndex: 0,
       isThinking: false,
+      boardSize: 560,
+      boardTheme: "dark",
+      pieceTheme: "standard",
+
+      setBoardSettings: (settings) => set((state) => ({ ...state, ...settings })),
 
       renameGroup: (id, title) => {
         set((state) => ({
