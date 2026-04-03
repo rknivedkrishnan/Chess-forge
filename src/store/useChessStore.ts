@@ -449,6 +449,7 @@ export const useChessStore = create<ChessState>()(
             const initial = buildInitialState(chapter.history, minUserIndex);
             return {
               activeChapterId: id,
+              activeGroupId: chapter.groupId,
               trainingHistory: chapter.history,
               currentTrainingIndex: minUserIndex,
               minUserIndex,
@@ -460,6 +461,7 @@ export const useChessStore = create<ChessState>()(
             chapter.history.forEach(m => { try { game.move(m); } catch (e) {} });
             return {
               activeChapterId: id,
+              activeGroupId: chapter.groupId,
               trainingHistory: chapter.history,
               currentTrainingIndex: chapter.history.length,
               minUserIndex,
