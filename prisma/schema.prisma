@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  accounts      Account[]
+  sessions      Session[]
+  repertoires   Repertoire[]
+  preferences   UserPreference?
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserPreference {
+  id            String @id @default(cuid())
+  userId        String @unique
+  boardTheme    String @default("classic")
+  pieceSet      String @default("staunton")
+  animations    Boolean @default(true)
+  sounds        Boolean @default(true)
+  showEval      Boolean @default(false)
+  autoQueen     Boolean @default(true)
+
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Repertoire {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  color       String   // "white" or "black"
+  description String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nodes       RepertoireNode[]
+}
+
+model RepertoireNode {
+  id             String   @id @default(cuid())
+  repertoireId   String
+  fen            String
+  pgnMove        String   // e.g. "e4"
+  moveNumber     Int
+  parentId       String?
+  comments       String?
+  evaluation     String?  // e.g. "+0.5" or "!!", "??"
+  status         String   @default("learning") // For SRS: "new", "learning", "weak", "strong", "mastered"
+  nextReviewAt   DateTime?
+  easeFactor     Float    @default(2.5)
+  interval       Int      @default(0)
+  streak         Int      @default(0)
+  
+  repertoire     Repertoire @relation(fields: [repertoireId], references: [id], onDelete: Cascade)
+  parent         RepertoireNode?  @relation("NodeHierarchy", fields: [parentId], references: [id])
+  children       RepertoireNode[] @relation("NodeHierarchy")
+
+  @@unique([repertoireId, parentId, pgnMove])
+}
