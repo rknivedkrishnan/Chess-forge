@@ -11,7 +11,7 @@ interface CreateCourseModalProps {
 }
 
 export function CreateCourseModal({ isOpen, onClose }: CreateCourseModalProps) {
-  const { loadPgn, loadStudy } = useChessStore();
+  const { loadPgn, loadStudy, studyColor, setStudyColor } = useChessStore();
   const [isImporting, setIsImporting] = useState(false);
 
   const handleLichessImport = async () => {
