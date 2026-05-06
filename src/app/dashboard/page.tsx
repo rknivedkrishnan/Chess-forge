@@ -2,12 +2,16 @@
 
 import { useChessStore } from "@/store/useChessStore";
 import { CourseCard } from "@/components/CourseCard";
+import { CreateCourseModal } from "@/components/CreateCourseModal";
 import { Search, Filter, Plus, Globe, Trophy, Flame } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function CoursesDashboard() {
   const { groups, chapters, setActiveChapter, xp, streakCount, linesMastered } = useChessStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
   const handleCourseClick = (groupId: string) => {
@@ -30,7 +34,7 @@ export default function CoursesDashboard() {
       {/* Top Gamification Bar */}
       <div className="sticky top-0 z-50 bg-base-900/80 backdrop-blur-md border-b border-white/5 px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <span className="text-xl font-black text-white tracking-tighter">chessreps.com</span>
+          <Link href="/" className="text-xl font-black text-white tracking-tighter">chessreps.com</Link>
           <div className="h-6 w-px bg-white/10 mx-2" />
           <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
              <Trophy className="w-4 h-4 text-accent" />
@@ -43,10 +47,10 @@ export default function CoursesDashboard() {
         </div>
 
         <div className="flex items-center gap-4">
-           <button className="px-4 py-1.5 text-sm font-bold text-text-muted hover:text-white transition">Sign In</button>
-           <button className="px-5 py-1.5 bg-primary text-base-900 text-sm font-black rounded-full hover:scale-105 transition-transform shadow-glow-purple">
+           <Link href="/login" className="px-4 py-1.5 text-sm font-bold text-text-muted hover:text-white transition">Sign In</Link>
+           <Link href="/register" className="px-5 py-1.5 bg-primary text-base-900 text-sm font-black rounded-full hover:scale-105 transition-transform shadow-glow-purple">
              Start for free
-           </button>
+           </Link>
         </div>
       </div>
 
@@ -88,7 +92,10 @@ export default function CoursesDashboard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-base-800 border border-white/5 rounded-xl text-sm font-bold text-white hover:bg-base-700 transition">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-base-800 border border-white/5 rounded-xl text-sm font-bold text-white hover:bg-base-700 transition"
+          >
             <Plus className="w-4 h-4" /> Create a Course
           </button>
           <button className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 border border-primary/20 rounded-xl text-sm font-black text-primary hover:bg-primary/20 transition">
@@ -126,6 +133,8 @@ export default function CoursesDashboard() {
           </div>
         )}
       </div>
+
+      <CreateCourseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }
