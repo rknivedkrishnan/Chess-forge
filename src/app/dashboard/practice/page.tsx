@@ -88,15 +88,46 @@ export default function PracticeModePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md"
           >
              <motion.div 
                initial={{ scale: 0.8, y: 20 }}
                animate={{ scale: 1, y: 0 }}
-               className="bg-primary text-base-900 px-12 py-6 rounded-[40px] shadow-glow-purple flex items-center gap-4"
+               className="bg-primary text-base-900 px-12 py-8 rounded-[40px] shadow-glow-purple flex flex-col items-center gap-6"
              >
-                <Trophy className="w-8 h-8" />
-                <span className="text-3xl font-black uppercase italic tracking-tighter">Line Mastered! +50 XP</span>
+                <div className="flex items-center gap-4">
+                  <Trophy className="w-10 h-10" />
+                  <span className="text-4xl font-black uppercase italic tracking-tighter text-glow-purple">Line Mastered!</span>
+                </div>
+                
+                <div className="text-xl font-bold uppercase tracking-widest opacity-80">+50 XP EARNED</div>
+
+                <div className="flex gap-4 mt-4">
+                  <button 
+                    onClick={resetTraining}
+                    className="px-8 py-3 bg-base-900 text-white font-black rounded-2xl hover:scale-105 transition-transform"
+                  >
+                    Retry Line
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const nextId = chapters.find((c, i) => {
+                        const currentIdx = chapters.findIndex(ch => ch.id === activeChapterId);
+                        return i === currentIdx + 1;
+                      })?.id;
+                      
+                      if (nextId) {
+                         router.push(`/dashboard/practice?id=${nextId}`);
+                         // Store logic handles activeChapterId update via state
+                      } else {
+                         router.push("/dashboard");
+                      }
+                    }}
+                    className="px-8 py-3 bg-white text-base-900 font-black rounded-2xl hover:scale-105 transition-transform shadow-lg"
+                  >
+                    Next Line
+                  </button>
+                </div>
              </motion.div>
           </motion.div>
         )}
