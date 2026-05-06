@@ -2,7 +2,7 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ChevronRight, Layers } from "lucide-react";
+import { ChevronRight, Layers, Trash2, Edit2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Chessboard = dynamic(() => import("react-chessboard").then((mod) => mod.Chessboard), {
@@ -16,19 +16,53 @@ interface CourseCardProps {
   progress?: number;
   isNew?: boolean;
   onClick: () => void;
+  onDelete?: (e: React.MouseEvent) => void;
+  onRename?: (e: React.MouseEvent) => void;
   fen?: string;
 }
 
-export function CourseCard({ title, description, lineCount, progress = 0, isNew, onClick, fen }: CourseCardProps) {
+export function CourseCard({ 
+  title, 
+  description, 
+  lineCount, 
+  progress = 0, 
+  isNew, 
+  onClick, 
+  onDelete, 
+  onRename, 
+  fen 
+}: CourseCardProps) {
   return (
     <motion.div 
       whileHover={{ y: -5 }}
       onClick={onClick}
-      className="glass-card group cursor-pointer rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-glow-purple border border-white/5 p-5"
+      className="glass-card group cursor-pointer rounded-3xl overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-glow-purple border border-white/5 p-5 relative"
     >
+      {/* Management Actions */}
+      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onRename?.(e);
+          }}
+          className="p-2 bg-base-900/80 backdrop-blur-md border border-white/5 rounded-lg text-text-muted hover:text-white transition"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete?.(e);
+          }}
+          className="p-2 bg-base-900/80 backdrop-blur-md border border-white/5 rounded-lg text-danger/70 hover:bg-danger hover:text-white transition"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
       <div className="flex gap-5 h-full">
         {/* Board Thumbnail */}
-        <div className="w-36 h-36 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/5 grayscale-[0.3] group-hover:grayscale-0 transition-all">
+        <div className="w-36 h-36 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl border border-white/5 grayscale-[0.3] group-hover:grayscale-0 transition-all pointer-events-none">
           <Chessboard 
             position={fen || "start"} 
             boardWidth={144} 

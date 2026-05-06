@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function CoursesDashboard() {
-  const { groups, chapters, setActiveChapter, xp, streakCount, linesMastered } = useChessStore();
+  const { groups, chapters, setActiveChapter, xp, streakCount, linesMastered, deleteGroup, renameGroup } = useChessStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
@@ -118,18 +118,35 @@ export default function CoursesDashboard() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
-            {groups.map((group, idx) => (
-              <CourseCard 
-                key={group.id}
-                title={group.title}
-                description={idx === 0 ? "If you click this, you're gonna make a lot of enemies. People hate London players because the opening is so solid and Black can do pretty much nothing to counter." : "A comprehensive guide to mastering this opening and gaining a clear advantage."}
-                lineCount={group.chapterIds.length}
-                progress={calculateProgress(group.id)}
-                isNew={idx === 0}
-                onClick={() => handleCourseClick(group.id)}
-                fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-              />
-            ))}
+            {groups.map((group, idx) => {
+              const groupChapters = chapters.filter(c => c.groupId === group.id);
+              const completedLines = groupChapters.filter(c => linesMastered.includes(c.id)).length;
+              const firstChapter = groupChapters[0];
+              
+              return (
+                <CourseCard 
+                  key={group.id}
+                  title={group.title}
+                  description={idx === 0 ? "If you click this, you're gonna make a lot of enemies. People hate London players because the opening is so solid and Black can do pretty much nothing to counter." : "A comprehensive guide to mastering this opening and gaining a clear advantage."}
+                  lineCount={group.chapterIds.length}
+                  progress={Math.round((completedLines / group.chapterIds.length) * 100) || 0}
+                  isNew={idx === 0}
+                  onClick={() => handleCourseClick(group.id)}
+                  onDelete={() => {
+                    if (confirm("Are you sure you want to delete this course?")) {
+                      deleteGroup(group.id, true);
+                    }
+                  }}
+                  onRename={() => {
+                    const newTitle = prompt("Enter new course title:", group.title);
+                    if (newTitle) {
+                      renameGroup(group.id, newTitle);
+                    }
+                  }}
+                  fen={firstChapter?.history[firstChapter.history.length - 1] ? undefined : "start"}
+                />
+              );
+            })}
           </div>
         )}
       </div>

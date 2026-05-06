@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CloudDownload, Download, Plus, Loader2 } from "lucide-react";
+import { X, CloudDownload, Download, Plus, Loader2, Shield } from "lucide-react";
 import { useChessStore } from "@/store/useChessStore";
 
 interface CreateCourseModalProps {
@@ -75,7 +75,28 @@ export function CreateCourseModal({ isOpen, onClose }: CreateCourseModalProps) {
              </button>
 
              <h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase">Create New Course</h2>
-             <p className="text-text-muted mb-10 font-medium">Build your repertoire from scratch or import existing lines.</p>
+             <p className="text-text-muted mb-8 font-medium">Build your repertoire from scratch or import existing lines.</p>
+
+             {/* Color Selection */}
+             <div className="mb-10 bg-base-900/50 p-6 rounded-3xl border border-white/5">
+                <div className="flex items-center justify-between mb-4">
+                   <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-black uppercase tracking-widest text-text-muted">Preparing for color:</span>
+                   </div>
+                   <div className="flex gap-2">
+                      <button 
+                        onClick={() => setStudyColor("white")}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${studyColor === "white" ? "bg-white text-base-900 shadow-glow-white" : "bg-base-700 text-text-muted hover:text-white"}`}
+                      > ♔ White </button>
+                      <button 
+                        onClick={() => setStudyColor("black")}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${studyColor === "black" ? "bg-primary text-base-900 shadow-glow-purple" : "bg-base-700 text-text-muted hover:text-white"}`}
+                      > ♚ Black </button>
+                   </div>
+                </div>
+                <p className="text-[10px] text-text-muted italic opacity-70">The board will automatically flip to this perspective during training.</p>
+             </div>
 
              <div className="grid grid-cols-2 gap-4">
                 <button 

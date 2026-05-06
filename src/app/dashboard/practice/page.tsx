@@ -19,7 +19,9 @@ export default function PracticeModePage() {
     resetTraining,
     markLineMastered,
     trainingHistory,
-    currentTrainingIndex
+    currentTrainingIndex,
+    setActiveChapter,
+    setOrientation // Added
   } = useChessStore();
   
   const [mode, setMode] = useState<"learn" | "practice" | "drill">("learn");
@@ -31,7 +33,10 @@ export default function PracticeModePage() {
   const isComplete = trainingHistory.length > 0 && currentTrainingIndex >= trainingHistory.length;
 
   useEffect(() => {
-    resetTraining();
+    if (activeChapter) {
+      setOrientation(activeChapter.studyColor);
+      resetTraining();
+    }
   }, [activeChapterId]);
 
   useEffect(() => {
@@ -111,14 +116,12 @@ export default function PracticeModePage() {
                   </button>
                   <button 
                     onClick={() => {
-                      const nextId = chapters.find((c, i) => {
-                        const currentIdx = chapters.findIndex(ch => ch.id === activeChapterId);
-                        return i === currentIdx + 1;
-                      })?.id;
+                      const currentIdx = chapters.findIndex(ch => ch.id === activeChapterId);
+                      const nextChapter = chapters[currentIdx + 1];
                       
-                      if (nextId) {
-                         router.push(`/dashboard/practice?id=${nextId}`);
-                         // Store logic handles activeChapterId update via state
+                      if (nextChapter) {
+                         setActiveChapter(nextChapter.id, "train");
+                         router.push(`/dashboard/practice?id=${nextChapter.id}`);
                       } else {
                          router.push("/dashboard");
                       }
