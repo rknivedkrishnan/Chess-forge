@@ -107,12 +107,21 @@ export default function PracticeModePage() {
                 
                 <div className="text-xl font-bold uppercase tracking-widest opacity-80">+50 XP EARNED</div>
 
-                <div className="flex gap-4 mt-4">
+                <div className="flex flex-wrap justify-center gap-4 mt-4">
                   <button 
                     onClick={resetTraining}
                     className="px-8 py-3 bg-base-900 text-white font-black rounded-2xl hover:scale-105 transition-transform"
                   >
                     Retry Line
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setMode("practice");
+                      resetTraining();
+                    }}
+                    className="px-8 py-3 bg-accent text-base-900 font-black rounded-2xl hover:scale-105 transition-transform shadow-glow-white"
+                  >
+                    Practice this Line
                   </button>
                   <button 
                     onClick={() => {
