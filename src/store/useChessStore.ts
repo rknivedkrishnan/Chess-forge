@@ -394,12 +394,15 @@ export const useChessStore = create<ChessState>()(
       },
 
       resetTraining: () => {
-        const { trainingHistory, minUserIndex, studyColor } = get();
+        const { trainingHistory, minUserIndex, chapters, activeChapterId } = get();
+        const activeChapter = chapters.find(c => c.id === activeChapterId);
+        const color = activeChapter?.studyColor || get().studyColor;
+        
         const initial = buildInitialState(trainingHistory, minUserIndex);
         set({ 
           ...initial, 
           currentTrainingIndex: minUserIndex,
-          orientation: studyColor 
+          orientation: color
         });
       },
 

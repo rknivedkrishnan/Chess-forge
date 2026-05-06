@@ -129,6 +129,7 @@ export default function PracticeModePage() {
                       const nextChapter = chapters[currentIdx + 1];
                       
                       if (nextChapter) {
+                         setMode("learn"); // Added
                          setActiveChapter(nextChapter.id, "train");
                          router.push(`/dashboard/practice?id=${nextChapter.id}`);
                       } else {
