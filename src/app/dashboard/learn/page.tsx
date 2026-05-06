@@ -1,108 +1,75 @@
 "use client";
 
-import React from "react";
 import { OpeningForgeBoard } from "@/components/ChessBoard";
-import { MoveHistory } from "@/components/MoveHistory";
-import { GraduationCap, ArrowRight, Play } from "lucide-react";
-import Link from "next/link";
+import { SidebarControl } from "@/components/SidebarControl";
 import { useChessStore } from "@/store/useChessStore";
+import { Trophy, Flame, ChevronLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LearnModePage() {
   const { 
     activeChapterId, 
-    trainingHistory, 
-    currentTrainingIndex,
-    minUserIndex,
-    stepForward, 
-    stepBackward, 
-    resetTraining,
+    chapters,
+    groups,
+    activeGroupId,
+    xp, 
+    streakCount, 
+    resetTraining
   } = useChessStore();
   
-  // Show the user's next move (the one AT currentTrainingIndex since auto-played opponent moves
-  // have already been applied — the store always leaves us at a user-move boundary)
-  const nextMove = trainingHistory[currentTrainingIndex] ?? null;
-  const isAtEnd = currentTrainingIndex >= trainingHistory.length;
-  const isAtStart = currentTrainingIndex <= minUserIndex;
+  const [mode, setMode] = useState<"learn" | "practice" | "drill">("learn");
+  const router = useRouter();
 
-  // Keyboard navigation
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") stepForward();
-      else if (e.key === "ArrowLeft") stepBackward();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [stepForward, stepBackward]);
-
-  // Always start from the beginning of the line when entering Learn Mode
-  React.useEffect(() => {
+  const activeChapter = chapters.find(c => c.id === activeChapterId);
+  const activeGroup = groups.find(g => g.id === activeGroupId);
+  
+  useEffect(() => {
     resetTraining();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeChapterId]);
 
   return (
-    <div className="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-8 max-w-7xl mx-auto w-full">
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="mb-6 self-start md:self-center text-center">
-           <h1 className="text-3xl font-extrabold flex items-center gap-3 justify-center">
-             <GraduationCap className="w-8 h-8 text-primary" />
-             Learn Mode
-           </h1>
-           <p className="text-text-muted font-medium mt-1">Study and master the sequence step-by-step.</p>
+    <div className="h-screen bg-base-950 flex flex-col overflow-hidden">
+      {/* Navbar */}
+      <div className="h-16 border-b border-white/5 px-8 flex items-center justify-between bg-base-900/50 backdrop-blur-md shrink-0">
+        <div className="flex items-center gap-6">
+          <button 
+            onClick={() => router.push("/dashboard")}
+            className="p-2 hover:bg-white/5 rounded-full transition text-text-muted hover:text-white"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <span className="text-xl font-black text-white tracking-tighter">chessreps.com</span>
         </div>
-        
-        <OpeningForgeBoard mode="learn" />
 
-        {/* Playback Controls */}
-        <div className="mt-8 flex items-center gap-4 bg-base-800 p-3 rounded-2xl border border-base-700 shadow-xl">
-           <button 
-             onClick={resetTraining}
-             className="px-4 py-2 text-sm font-bold text-text-muted hover:text-white transition bg-base-900 rounded-xl border border-base-600"
-           >
-             Reset
-           </button>
-           <div className="h-8 w-[1px] bg-base-700" />
-           <button 
-             onClick={stepBackward}
-             disabled={isAtStart}
-             className="p-3 text-white bg-base-900 rounded-xl border border-base-600 disabled:opacity-30 hover:bg-base-700 transition"
-           >
-             <ArrowRight className="w-5 h-5 rotate-180" />
-           </button>
-           
-           <div className="px-6 flex flex-col items-center min-w-[120px]">
-              <span className="text-[10px] uppercase tracking-wider text-text-muted font-bold">Next Move</span>
-              <span className="text-xl font-black text-primary font-mono tracking-tighter">
-                {nextMove || "End"}
-              </span>
-           </div>
-
-           <button 
-             onClick={stepForward}
-             disabled={isAtEnd}
-             className="p-3 text-white bg-primary rounded-xl hover:bg-primary-hover shadow-[0_0_20px_rgba(255,215,0,0.2)] disabled:opacity-30 transition group"
-           >
-             <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-           </button>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+             <Trophy className="w-4 h-4 text-accent" />
+             <span className="text-xs font-black">{xp}</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+             <Flame className="w-4 h-4 text-orange-500" />
+             <span className="text-xs font-black">{streakCount}</span>
+          </div>
         </div>
       </div>
 
-      <div className="w-full md:w-96 flex flex-col bg-base-800 border border-base-700 rounded-3xl shadow-xl overflow-hidden mt-4 md:mt-20 h-[600px]">
-        <div className="p-5 border-b border-base-700 bg-base-800/80 backdrop-blur-md">
-            <h2 className="text-lg font-bold">Line Summary</h2>
+      {/* Main content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Board Section */}
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-base-900/30">
+           <OpeningForgeBoard mode={mode === "learn" ? "learn" : "practice"} />
         </div>
-        <div className="flex-1 p-5 overflow-y-auto">
-            <MoveHistory />
-        </div>
-        <div className="p-5 border-t border-base-700 bg-base-900/50 flex flex-col gap-3">
-           <Link 
-              href="/dashboard/practice" 
-              className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl shadow-lg transition ${activeChapterId ? "bg-white text-base-900 hover:bg-white/90" : "bg-base-700 text-text-muted cursor-not-allowed"}`}
-              style={{ pointerEvents: activeChapterId ? 'auto' : 'none' }}
-           >
-              Practice This Line <Play className="w-4 h-4 ml-1" />
-           </Link>
-        </div>
+
+        {/* Control Sidebar */}
+        <SidebarControl 
+          activeMode={mode} 
+          onModeChange={(m) => {
+            setMode(m);
+            if (m === "practice") router.push("/dashboard/practice");
+          }} 
+          title={activeGroup?.title || "Untitled Course"} 
+        />
       </div>
     </div>
   );

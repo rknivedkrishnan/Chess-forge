@@ -61,6 +61,17 @@ interface ChessState {
   resetTraining: () => void;
   getNextChapterId: () => string | null;
   setBoardSettings: (settings: Partial<{ boardSize: number; boardTheme: any; pieceTheme: any }>) => void;
+  
+  // Progress & Gamification
+  streakCount: number;
+  lastStreakUpdate: string | null;
+  weeklyProgress: boolean[];
+  xp: number;
+  linesMastered: string[];
+  showStreakModal: boolean;
+  setShowStreakModal: (show: boolean) => void;
+  recordActivity: () => void;
+  markLineMastered: (id: string) => void;
 }
 
 // Derive which color the study is for from a PGN string
@@ -116,6 +127,62 @@ export const useChessStore = create<ChessState>()(
       boardSize: 560,
       boardTheme: "dark",
       pieceTheme: "standard",
+
+      // Progress Initial State
+      streakCount: 0,
+      lastStreakUpdate: null,
+      weeklyProgress: [false, false, false, false, false, false, false],
+      xp: 0,
+      linesMastered: [],
+      showStreakModal: false,
+
+      setShowStreakModal: (show) => set({ showStreakModal: show }),
+
+      markLineMastered: (id) => set((state) => ({
+        linesMastered: state.linesMastered.includes(id) ? state.linesMastered : [...state.linesMastered, id],
+        xp: state.xp + 50
+      })),
+
+      recordActivity: () => {
+        const now = new Date();
+        const dateString = now.toISOString().split("T")[0]; // YYYY-MM-DD
+        const { lastStreakUpdate, streakCount, weeklyProgress } = get();
+
+        if (lastStreakUpdate === dateString) return;
+
+        const dayIndex = (now.getDay() + 6) % 7; // Convert 0-6 (Sun-Sat) to 0-6 (Mon-Sun)
+        const newWeeklyProgress = [...weeklyProgress];
+        newWeeklyProgress[dayIndex] = true;
+
+        let newStreak = streakCount;
+        let showModal = false;
+
+        // Simple streak logic: if yesterday was active, increment. If skipped a day, reset.
+        if (lastStreakUpdate) {
+           const lastDate = new Date(lastStreakUpdate);
+           const diffTime = Math.abs(now.getTime() - lastDate.getTime());
+           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+           
+           if (diffDays === 1) {
+             newStreak += 1;
+             showModal = true;
+           } else if (diffDays > 1) {
+             newStreak = 1;
+             showModal = true;
+           }
+        } else {
+           newStreak = 1;
+           showModal = true;
+        }
+
+        set({
+          lastStreakUpdate: dateString,
+          streakCount: newStreak,
+          weeklyProgress: newWeeklyProgress,
+          xp: get().xp + 10,
+          showStreakModal: showModal
+        });
+      },
 
       setBoardSettings: (settings) => set((state) => ({ ...state, ...settings })),
 
@@ -236,6 +303,7 @@ export const useChessStore = create<ChessState>()(
 
           // Update state with user move first
           set({ fen: game.fen(), history: game.history(), currentTrainingIndex: nextIndexAfterUser });
+          get().recordActivity();
 
           // If correct and not at the end, play opponent move after a delay
           if (correct === true && nextIndexAfterUser < trainingHistory.length) {

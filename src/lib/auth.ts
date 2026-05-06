@@ -1,16 +1,23 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "./db";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // adapter: PrismaAdapter(prisma) as any, // Commented out to avoid connection error without DB
+  adapter: PrismaAdapter(prisma) as any,
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || "mock",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     Credentials({
       name: "Sign in",
@@ -23,13 +30,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // const user = await prisma.user.findUnique({ ... })
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string },
+        }) as any;
 
-        if (credentials.email === "test@example.com" && credentials.password === "password") {
-             return { id: "1", name: "Test User", email: "test@example.com", role: "user" };
+        if (!user || !user.password) {
+          return null;
         }
-        
-        return null;
+
+        const isPasswordCorrect = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
+
+        if (!isPasswordCorrect) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
   ],

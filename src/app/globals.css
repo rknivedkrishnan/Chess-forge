@@ -1,38 +1,48 @@
 @import "tailwindcss";
 
 @theme {
-  --color-base-900: #0f0f0f;
-  --color-base-800: #1a1a1a;
-  --color-base-700: #262626;
-  --color-base-600: #404040;
+  --color-base-950: #050505;
+  --color-base-900: #0a0a0a;
+  --color-base-800: #141414;
+  --color-base-700: #1f1f1f;
+  --color-base-600: #2a2a2a;
   
-  --color-text-main: #f5f5f5;
-  --color-text-muted: #a3a3a3;
+  --color-text-main: #ffffff;
+  --color-text-muted: #888888;
   
-  --color-primary: #81b64c;
-  --color-primary-hover: #8fc75b;
+  --color-primary: #a855f7;
+  --color-primary-hover: #c084fc;
 
-  --color-accent: #c4a161;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #fbbf24;
 
-  --color-danger: #fb7185;
-  --color-danger-hover: #f43f5e;
+  --color-danger: #ef4444;
+  --color-danger-hover: #f87171;
+
+  --color-board-dark: #b58863;
+  --color-board-light: #f0d9b5;
+
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.2);
+  --shadow-glow-orange: 0 0 20px rgba(245, 158, 11, 0.2);
 }
 
 @layer base {
   :root {
-    --background: #0f0f0f;
-    --foreground: #f5f5f5;
+    --background: #0a0a0a;
+    --foreground: #ffffff;
   }
 }
 
 @layer base {
   * {
-    border-color: #262626;
+    border-color: #1f1f1f;
     box-sizing: border-box;
   }
   body {
     background-color: var(--background);
     color: var(--foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
@@ -45,13 +55,35 @@
     width: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0f0f0f; 
+    background: #0a0a0a; 
   }
   ::-webkit-scrollbar-thumb {
-    background: #262626; 
-    border-radius: 4px;
+    background: #1f1f1f; 
+    border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #404040; 
+    background: #2a2a2a; 
   }
 }
+
+@layer utilities {
+  .glass {
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .glass-card {
+    background: linear-gradient(145deg, rgba(31, 31, 31, 0.9), rgba(20, 20, 20, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+  }
+
+  .text-glow-orange {
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  }
+}
+
